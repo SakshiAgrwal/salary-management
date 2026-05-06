@@ -31,3 +31,10 @@
 
 en:
   hello: "Hello world"
+  activerecord:
+    errors:
+      models:
+        employee:
+          attributes:
+            phone:
+              invalid: "must be 10 digits"

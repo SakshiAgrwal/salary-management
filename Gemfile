@@ -6,7 +6,10 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '>= 3.1.0'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
 gem 'rails', '~> 7.0'
-gem 'sqlite3', '~> 1.4'
+
+# Use SQLite for development/test, PostgreSQL for production
+gem 'sqlite3', '~> 1.4', group: [:development, :test]
+gem 'pg', '~> 1.5', group: :production
 # Use Puma as the app server
 gem 'puma', '~> 6.4'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder

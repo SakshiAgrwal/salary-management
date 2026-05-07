@@ -181,6 +181,7 @@ GEM
       sawyer (~> 0.9)
     ostruct (0.6.3)
     parallel (1.28.0)
+    pg (1.5.9)
     parser (3.3.11.1)
       ast (~> 2.4.1)
       racc
@@ -348,6 +349,7 @@ DEPENDENCIES
   factory_bot_rails
   faker
   listen (~> 3.3)
+  pg (~> 1.5)
   pronto
   pronto-rubocop
   puma (~> 6.4)

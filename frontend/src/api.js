@@ -5,7 +5,7 @@ const EMPLOYEES_BASE = '/employees';
 
 export const api = {
   // Employees CRUD
-  getEmployees: () => axios.get(EMPLOYEES_BASE),
+  getEmployees: (params = {}) => axios.get(EMPLOYEES_BASE, { params }),
   getEmployee: (id) => axios.get(`${EMPLOYEES_BASE}/${id}`),
   createEmployee: (data) => axios.post(EMPLOYEES_BASE, { employee: data }),
   updateEmployee: (id, data) => axios.put(`${EMPLOYEES_BASE}/${id}`, { employee: data }),

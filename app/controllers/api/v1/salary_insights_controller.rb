@@ -51,11 +51,13 @@ module Api
           overall_avg_salary: Employee.average(:salary).to_f.round(2),
           overall_min_salary: Employee.minimum(:salary).to_f,
           overall_max_salary: Employee.maximum(:salary).to_f,
+          overall_median_salary: median(Employee.pluck(:salary)),
           countries_count: Employee.distinct.count(:country),
           job_titles_count: Employee.distinct.count(:job_title),
           salary_by_country: salary_by_country,
           top_paying_countries: top_paying_countries,
-          salary_distribution: salary_distribution
+          salary_distribution: salary_distribution,
+          top_roles_by_country: top_roles_by_country
         }
       end
 
@@ -85,6 +87,34 @@ module Api
       def top_paying_countries
         Employee.group(:country).average(:salary).sort_by { |_, v| -v }.first(5)
                 .map { |c, a| { country: c, avg_salary: a.to_f.round(2) } }
+      end
+
+      def top_roles_by_country
+        grouped = Employee.group(:country, :job_title)
+                           .select(
+                             'country',
+                             'job_title',
+                             'AVG(salary) AS avg_salary',
+                             'MIN(salary) AS min_salary',
+                             'MAX(salary) AS max_salary',
+                             'COUNT(*) AS employee_count'
+                           )
+
+        grouped.group_by(&:country).map do |country, roles|
+          sorted_roles = roles.sort_by { |role| -role.avg_salary.to_f }
+          {
+            country: country,
+            roles: sorted_roles.first(5).map do |role|
+              {
+                job_title: role.job_title,
+                employee_count: role.employee_count,
+                avg_salary: role.avg_salary.to_f.round(2),
+                min_salary: role.min_salary.to_f,
+                max_salary: role.max_salary.to_f
+              }
+            end
+          }
+        end
       end
 
       def salary_distribution

@@ -103,9 +103,13 @@ RSpec.describe 'Api::V1::SalaryInsights' do
 
   describe 'GET /api/v1/salary_insights/summary' do
     before do
-      create(:employee, country: 'India', job_title: 'Software Engineer', salary: 100_000)
-      create(:employee, country: 'India', job_title: 'Data Scientist', salary: 120_000)
+      create(:employee, country: 'India', job_title: 'Software Engineer', salary: 90_000)
+      create(:employee, country: 'India', job_title: 'Software Engineer', salary: 110_000)
+      create(:employee, country: 'India', job_title: 'Data Scientist', salary: 140_000)
+      create(:employee, country: 'India', job_title: 'Engineering Manager', salary: 160_000)
       create(:employee, country: 'United States', job_title: 'Software Engineer', salary: 150_000)
+      create(:employee, country: 'United States', job_title: 'Principal Engineer', salary: 220_000)
+      create(:employee, country: 'United States', job_title: 'Engineering Manager', salary: 180_000)
     end
 
     it 'returns overall salary summary' do
@@ -114,13 +118,15 @@ RSpec.describe 'Api::V1::SalaryInsights' do
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
 
-      expect(json['total_employees']).to eq(3)
-      expect(json['total_payroll']).to eq(370_000.0)
+      expect(json['total_employees']).to eq(7)
+      expect(json['total_payroll']).to eq(1_050_000.0)
       expect(json['countries_count']).to eq(2)
-      expect(json['job_titles_count']).to eq(2)
+      expect(json['job_titles_count']).to eq(4)
       expect(json['salary_by_country']).to be_an(Array)
       expect(json['top_paying_countries']).to be_an(Array)
       expect(json['salary_distribution']).to be_an(Array)
+      expect(json['overall_median_salary']).to eq(150_000.0)
+      expect(json['top_roles_by_country']).to be_an(Array)
     end
 
     it 'includes salary distribution ranges' do
@@ -130,6 +136,22 @@ RSpec.describe 'Api::V1::SalaryInsights' do
       distribution = json['salary_distribution']
 
       expect(distribution.map { |d| d['range'] }).to include('100K - 150K', '150K - 200K')
+    end
+
+    it 'includes top 5 highest paid roles per country sorted by average salary' do
+      get '/api/v1/salary_insights/summary'
+
+      json = JSON.parse(response.body)
+      top_roles = json['top_roles_by_country']
+
+      india_roles = top_roles.find { |entry| entry['country'] == 'India' }['roles']
+      us_roles = top_roles.find { |entry| entry['country'] == 'United States' }['roles']
+
+      expect(india_roles.first['job_title']).to eq('Engineering Manager')
+      expect(india_roles.first['avg_salary']).to eq(160_000.0)
+      expect(us_roles.first['job_title']).to eq('Principal Engineer')
+      expect(us_roles.first['avg_salary']).to eq(220_000.0)
+      expect(us_roles.size).to be <= 5
     end
   end
 

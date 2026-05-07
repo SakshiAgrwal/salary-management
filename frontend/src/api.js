@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-const API_BASE = '/api/v1';
-const EMPLOYEES_BASE = '/employees';
+const BACKEND_URL = process.env.REACT_APP_API_BASE || '';
+const API_BASE = `${BACKEND_URL}/api/v1`;
+const EMPLOYEES_BASE = `${BACKEND_URL}/employees`;
 
 export const api = {
   // Employees CRUD
